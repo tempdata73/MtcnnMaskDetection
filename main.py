@@ -2,6 +2,8 @@ import cv2
 import logging
 import logging.config
 
+import utils
+
 from utils import detections, CentroidTracker
 
 
@@ -10,21 +12,15 @@ logging.config.fileConfig("log/logging.conf", disable_existing_loggers=False)
 logger = logging.getLogger(__file__)
 
 
-def display(frame, tracker, bboxes):
+def display(frame, tracker, bboxes, scores):
     canvas = frame.copy()
-    for person in tracker.objects.values():
-        text = f"ID: {person.id_}"
-        cx, cy = person.centroid.astype("int")
-        cv2.circle(canvas, (cx, cy), 5, (0, 255, 0), -1)
-        cv2.putText(
-            canvas, text, (cx - 10, cy - 10),
-            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2
-        )
+    canvas = utils.draw_tracker(canvas, tracker)
+    canvas = utils.draw_bounding_boxes(canvas, bboxes, scores)
     return canvas
 
 
 def track_video(vcap):
-    tracker = CentroidTracker()
+    tracker = CentroidTracker(max_detections=10)
     while True:
         ret, frame = vcap.read()
         key = cv2.waitKey(50)
@@ -40,7 +36,7 @@ def track_video(vcap):
 
         # show results
         if len(centroids) > 0:
-            frame = display(frame, tracker, bboxes)
+            frame = display(frame, tracker, bboxes, scores)
 
         cv2.imshow("", frame)
     cv2.destroyAllWindows()

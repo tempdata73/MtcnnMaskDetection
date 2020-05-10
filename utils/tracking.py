@@ -7,7 +7,9 @@ from scipy.spatial import distance
 
 
 # setup logger
-logger = logging.getLogger(os.path.basename(__file__))
+parent_dir, filename = os.path.split(__file__)
+base_dir = os.path.basename(parent_dir)
+logger = logging.getLogger(os.path.join(base_dir, filename))
 
 
 class CentroidTracker(object):

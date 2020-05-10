@@ -1,4 +1,5 @@
 import os
+import cv2
 import logging
 import numpy as np
 
@@ -7,12 +8,15 @@ from torch_mtcnn import detect_faces
 
 
 # setup logger
-logger = logging.getLogger(os.path.basename(__file__))
+parent_dir, filename = os.path.split(__file__)
+base_dir = os.path.basename(parent_dir)
+logger = logging.getLogger(os.path.join(base_dir, filename))
 
 
 def fetch_faces(image, return_landmarks=False):
-    # standarize detector input
+    # standarize detector input from cv2 image to PIL Image
     if isinstance(image, (np.ndarray, np.generic)):
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         image = Image.fromarray(image)
 
     # for some reason, detector randomly throws an error
