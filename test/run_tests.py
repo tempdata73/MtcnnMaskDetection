@@ -5,8 +5,8 @@ import logging
 import logging.config
 import numpy as np
 
-from utils import metrics
 from utils import Parser, fetch_faces
+from utils import metrics
 
 
 # setup logger

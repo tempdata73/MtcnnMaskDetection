@@ -1,3 +1,4 @@
+import argparse
 import cv2
 import logging
 import logging.config
@@ -43,5 +44,16 @@ def track_video(vcap):
     vcap.release()
 
 
+def main(camera_id):
+    vcap = cv2.VideoCapture(camera_id)
+    track_video(vcap)
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("camera_id", type=int, help="camera id")
+    return vars(parser.parse_args())
+
+
 if __name__ == "__main__":
-    track_video(cv2.VideoCapture(2))
+    main(**parse_args())
