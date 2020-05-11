@@ -38,7 +38,7 @@ def test_single_image(parser, save_random=True):
     # obtain groundtruth data
     metadata = parser.fetch_metadata()
     # filter to get people who only wear mask
-    idxs = np.where(metadata["placement"] == "good")[0]
+    idxs = np.where(metadata["placement"] != "none")[0]
     metadata["bboxes"] = metadata["bboxes"][idxs]
 
     # do inference on mtcnn
