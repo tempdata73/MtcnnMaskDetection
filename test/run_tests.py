@@ -1,9 +1,10 @@
 import argparse
 import cv2
-import os
+import json
 import logging
 import logging.config
 import numpy as np
+import os
 
 from utils import Parser, fetch_faces
 from utils import metrics
@@ -34,7 +35,7 @@ def save_image(image, filename, groundtruth, preds):
     cv2.imwrite(dst_path, canvas)
 
 
-def test_single_image(parser, save_random=True):
+def test_single_image(parser, threshold, save_random=True):
     # obtain groundtruth data
     metadata = parser.fetch_metadata()
     # filter to get people who only wear mask
@@ -44,7 +45,7 @@ def test_single_image(parser, save_random=True):
     # do inference on mtcnn
     image = cv2.imread(parser.image_path)
     bboxes, _ = fetch_faces(image, return_landmarks=False)
-    recall = metrics.recall(metadata["bboxes"], bboxes, threshold=0.5)
+    recall = metrics.recall(metadata["bboxes"], bboxes, threshold=threshold)
 
     # save results for ablation study
     if save_random and np.random.uniform() <= 0.10:
@@ -55,32 +56,48 @@ def test_single_image(parser, save_random=True):
     return recall
 
 
-def test_mtcnn(base_dir):
+def test_mtcnn(base_dir, thresholds):
     # initialize data
-    recall = []
+    results = dict(zip(thresholds, [[] for _ in thresholds]))
     filenames = os.listdir(base_dir)
-    logger.info(f"Going to process {len(filenames)} images")
-    # some images mentioned in xml files are not in dataset
-    skipped_images = 0
+    logger.debug(f"Going to process {len(filenames)} images")
 
     # calculate individual recalls
     for i, filename in enumerate(filenames):
         try:
             parser = Parser(base_dir, filename)
         except FileNotFoundError:
-            skipped_images += 1
             continue
-        single_recall = test_single_image(parser, save_random=True)
-        # log every n images
-        if (i + 1) % 50 == 0:
-            logger.info(f"Processed {i + 1} images")
-        if single_recall is None:
-            continue
-        recall.append(single_recall)
 
-    # Notify reults. TODO: save datum in a file
-    logger.debug(f"Skipped {skipped_images} images due to unexistence")
-    logger.info(f"Mean recall = {np.mean(recall):0.3f}")
+        for th in thresholds:
+            recall = test_single_image(parser, th, save_random=False)
+            if recall is None:
+                break
+            results[th].append(recall)
+
+        # log every n images
+        if (i + 1) % 20 == 0:
+            logger.info(f"Processed {i + 1} images")
+
+    # Notify reults
+    for th, recall in results.items():
+        logger.info(f"Mean recall (@IoU={th:0.0%}) = {np.mean(recall):0.3f}")
+
+    return results
+
+
+def main(base_dir):
+    thresholds = np.linspace(0.1, 1, 20, endpoint=True)
+    results = test_mtcnn(base_dir, thresholds)
+
+    # get only mean recall
+    for th, data in results.items():
+        results[th] = np.mean(data)
+
+    # save data
+    with open("recall.json", "w") as outfile:
+        logger.info("Saved results in recall.json")
+        json.dump(outfile, results)
 
 
 def parse_args():
@@ -90,4 +107,4 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    test_mtcnn(**parse_args())
+    main(**parse_args())
