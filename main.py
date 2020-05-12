@@ -3,9 +3,9 @@ import cv2
 import logging
 import logging.config
 
-import utils
-
-from utils import detections, CentroidTracker
+from utils.detections import fetch_faces, fetch_centroids
+from utils.drawing import draw_tracker, draw_bounding_boxes
+from utils.tracking import CentroidTracker
 
 
 # setup logger
@@ -15,8 +15,8 @@ logger = logging.getLogger(__file__)
 
 def display(frame, tracker, bboxes, scores):
     canvas = frame.copy()
-    canvas = utils.draw_tracker(canvas, tracker)
-    canvas = utils.draw_bounding_boxes(canvas, bboxes, scores)
+    canvas = draw_tracker(canvas, tracker)
+    canvas = draw_bounding_boxes(canvas, bboxes, scores)
     return canvas
 
 
@@ -30,9 +30,9 @@ def track_video(vcap):
             break
 
         # do face tracking and ignore facial landmarks
-        bboxes, scores = detections.fetch_faces(frame, return_landmarks=False)
+        bboxes, scores = fetch_faces(frame, return_landmarks=False)
         # update face tracker
-        centroids = detections.fetch_centroids(bboxes)
+        centroids = fetch_centroids(bboxes)
         tracker.update(centroids)
 
         # show results
