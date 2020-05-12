@@ -22,7 +22,7 @@ class Parser(object):
         # some files in the dataset do not exist
         if not os.path.exists(self.image_path):
             logger.error(f"Could not find {self.image_path}")
-            raise FileNotFoundError
+            raise FileNotFoundError(f"{self.image_path} does not exist")
 
     @staticmethod
     def _fetch_bounding_box(obj):
