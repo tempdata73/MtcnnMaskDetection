@@ -1,5 +1,7 @@
 # dataset
 test/dataset/
+test/plot_recall.py
+test/recall.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
