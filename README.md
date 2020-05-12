@@ -12,7 +12,9 @@ The test images were taken from Kaggle's [Medical Mask Dataset](https://www.kagg
 ## Results
 Groundtruth bounding boxes are given in green while predictions are given in red.
 <img src="test/results/Smog-Mask-PM2-5-Carbon-Filter-Face-Masks-Fog-Dust-Air-Cleaner-anti-pollution-Face-Protector.jpg" alt="Easy example" width="350"/>
-<img src="test/results/AP_20039189423521.jpg" alt="Hard example" width="350"/>
+<img src="test/results/AP_20039189423521.jpg" alt="Hard example" height="309"/>
+
+<img src="test/results/recall.png" alt="recall as function of IoU" height="500"/>
 
 ## License
 The code under this repo has an MIT License, so it can be reproduced for private and/or commercial use.
