@@ -76,7 +76,7 @@ def test_mtcnn(base_dir, thresholds):
             results[th].append(recall)
 
         # log every n images
-        if (i + 1) % 20 == 0:
+        if (i + 1) % 10 == 0:
             logger.info(f"Processed {i + 1} images")
 
     # Notify reults
@@ -87,7 +87,7 @@ def test_mtcnn(base_dir, thresholds):
 
 
 def main(base_dir):
-    thresholds = np.linspace(0.1, 1, 20, endpoint=True)
+    thresholds = np.linspace(0.1, 1, 10, endpoint=True)
     results = test_mtcnn(base_dir, thresholds)
 
     # get only mean recall
@@ -97,7 +97,7 @@ def main(base_dir):
     # save data
     with open("recall.json", "w") as outfile:
         logger.info("Saved results in recall.json")
-        json.dump(outfile, results)
+        json.dump(results, outfile)
 
 
 def parse_args():
